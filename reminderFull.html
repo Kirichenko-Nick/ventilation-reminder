@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Напоминание о проветривании</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background: #222;
+            color: #fff;
+        }
+
+        header {
+            background: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+
+        #openSettings {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100%;
+            background: #444;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+            transition: right 0.3s ease;
+            z-index: 1000;
+        }
+
+        #sidebar.open {
+            right: 0;
+        }
+
+        #closeSettings {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .setting {
+            margin: 20px 0;
+        }
+
+        .setting button {
+            display: inline-block;
+            margin-right: 10px;
+            padding: 5px 10px;
+            background: #666;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Напоминание о проветривании</h1>
+        <button id="openSettings">&#9776; Настроить</button>
+    </header>
+
+    <main>
+        <p>Программа активна. Напоминание будет через указанный интервал.</p>
+    </main>
+
+    <aside id="sidebar">
+        <button id="closeSettings">&times;</button>
+        <h2>Настройки</h2>
+        <div class="setting">
+            <label for="interval">Интервал (мин):</label>
+            <input type="number" id="interval" min="1" value="60" />
+        </div>
+        <div class="setting">
+            <label for="background">Фон:</label>
+            <input type="file" id="background" accept="image/*" />
+        </div>
+        <div class="setting">
+            <label for="audioFile">Музыка:</label>
+            <input type="file" id="audioFile" accept="audio/*" />
+        </div>
+        <div class="setting">
+            <button id="playSound">Включить музыку</button>
+            <button id="stopSound">Выключить музыку</button>
+        </div>
+        <button id="saveSettings">Сохранить</button>
+    </aside>
+
+    <audio id="audio"></audio>
+
+    <script>
+        const openBtn = document.getElementById('openSettings');
+        const closeBtn = document.getElementById('closeSettings');
+        const sidebar = document.getElementById('sidebar');
+        const playBtn = document.getElementById('playSound');
+        const stopBtn = document.getElementById('stopSound');
+        const audio = document.getElementById('audio');
+        const intervalInput = document.getElementById('interval');
+        const saveBtn = document.getElementById('saveSettings');
+        const backgroundInput = document.getElementById('background');
+        const audioInput = document.getElementById('audioFile');
+
+        let reminderInterval;
+        let audioSourceSet = false;
+
+        openBtn.addEventListener('click', () => {
+            sidebar.classList.add('open');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+        });
+
+        playBtn.addEventListener('click', () => {
+            if (!audioSourceSet) {
+                alert('Сначала выберите аудиофайл.');
+                return;
+            }
+            audio.play();
+        });
+
+        stopBtn.addEventListener('click', () => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+
+        saveBtn.addEventListener('click', () => {
+            const minutes = parseInt(intervalInput.value, 10);
+            if (reminderInterval) {
+                clearInterval(reminderInterval);
+            }
+            reminderInterval = setInterval(() => {
+                showNotification();
+                if (audioSourceSet) {
+                    audio.play();
+                }
+            }, minutes * 60 * 1000);
+
+            // Фон
+            const file = backgroundInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    document.body.style.backgroundSize = 'cover';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // Аудио
+            const audioFile = audioInput.files[0];
+            if (audioFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    audio.src = e.target.result;
+                    audioSourceSet = true;
+                };
+                reader.readAsDataURL(audioFile);
+            }
+
+            sidebar.classList.remove('open');
+        });
+
+        function showNotification() {
+            const notification = document.createElement('div');
+            notification.textContent = 'Пора проветрить помещение!';
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '20px';
+            notification.style.background = 'rgba(0,0,0,0.8)';
+            notification.style.color = '#fff';
+            notification.style.borderRadius = '5px';
+            notification.style.zIndex = '1001';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 5000);
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Out of Many — Inspired</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', sans-serif;
+            background: linear-gradient(45deg, #000000, #111111);
+            animation: bgShift 15s infinite alternate ease-in-out;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes bgShift {
+            0% {
+                background: linear-gradient(45deg, #000000, #111111);
+            }
+
+            50% {
+                background: linear-gradient(45deg, #202020, #000000);
+            }
+
+            100% {
+                background: linear-gradient(45deg, #000000, #111111);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            opacity: 0;
+            animation: fadeIn 3s ease-out forwards;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1.02);
+            }
+        }
+
+        .cursor {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: transform 0.1s ease;
+            mix-blend-mode: difference;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Out of Many<br>Inspired Design</h1>
+    <div class="cursor" id="cursor"></div>
+
+    <script>
+        // Custom cursor effect
+        const cursor = document.getElementById("cursor");
+
+        document.addEventListener("mousemove", (e) => {
+            cursor.style.left = e.pageX + "px";
+            cursor.style.top = e.pageY + "px";
+        });
+
+        document.addEventListener("mousedown", () => {
+            cursor.style.transform = "scale(0.6)";
+        });
+
+        document.addEventListener("mouseup", () => {
+            cursor.style.transform = "scale(1)";
+        });
+    </script>
+</body>
+
+</html>

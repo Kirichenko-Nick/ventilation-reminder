@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Умное напоминание</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #222, #111);
+            color: white;
+        }
+
+        header {
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            background: #000;
+        }
+
+        #status {
+            padding: 10px;
+            text-align: center;
+        }
+
+        #controls {
+            text-align: center;
+            padding: 10px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #hamburger {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+            background: transparent;
+            border: none;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            z-index: 9;
+            box-shadow: -3px 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        #menu button,
+        #menu input {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #interval-input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>⏰ Напоминание о проветривании</header>
+
+    <button id="hamburger">☰</button>
+
+    <div id="menu">
+        <button id="add-btn">Добавить</button>
+        <button id="customize-btn">Настроить</button>
+        <input type="file" id="music-file" accept="audio/*">
+        <button id="play-music">Включить музыку</button>
+        <button id="stop-music">Выключить</button>
+        <label>Интервал (мин):</label>
+        <input type="number" id="interval-input" min="1" value="10">
+        <button id="start-reminder">▶ Старт</button>
+        <button id="stop-reminder">⏹ Стоп</button>
+    </div>
+
+    <div id="status">Ожидание запуска...</div>
+
+    <audio id="audio"></audio>
+
+    <script>
+        const hamburger = document.getElementById("hamburger");
+        const menu = document.getElementById("menu");
+        const audio = document.getElementById("audio");
+        const musicFileInput = document.getElementById("music-file");
+
+        const status = document.getElementById("status");
+        const startBtn = document.getElementById("start-reminder");
+        const stopBtn = document.getElementById("stop-reminder");
+
+        let timerId = null;
+
+        hamburger.onclick = () => {
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
+        };
+
+        musicFileInput.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                audio.src = url;
+            }
+        });
+
+        document.getElementById("play-music").onclick = () => {
+            if (audio.src) {
+                audio.play();
+            }
+        };
+
+        document.getElementById("stop-music").onclick = () => {
+            audio.pause();
+            audio.currentTime = 0;
+        };
+
+        function notify() {
+            const message = "Пора проветрить комнату!";
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(message);
+            } else {
+                alert(message);
+            }
+            audio.play().catch(e => console.log("Музыка не загружена или не разрешена"));
+        }
+
+        startBtn.onclick = () => {
+            const intervalMin = parseInt(document.getElementById("interval-input").value);
+            const intervalMs = intervalMin * 60 * 1000;
+
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+            if (timerId) clearInterval(timerId);
+            notify(); // Сразу напомнить
+            timerId = setInterval(notify, intervalMs);
+
+            status.textContent = `✅ Напоминание каждые ${intervalMin} мин.`;
+        };
+
+        stopBtn.onclick = () => {
+            clearInterval(timerId);
+            timerId = null;
+            status.textContent = "⏹ Напоминание остановлено.";
+        };
+
+        // Дополнительные действия
+        document.getElementById("add-btn").onclick = () => alert("Добавить действие — в разработке.");
+        document.getElementById("customize-btn").onclick = () => alert("Настроить — в разработке.");
+    </script>
+
+</body>
+
+</html>
