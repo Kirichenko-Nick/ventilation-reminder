@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Проветри комнату</title>
+</head>
+
+<body>
+    <h1>Напоминание о проветривании</h1>
+    <p>Программа активна. Каждые 60 минут будет напоминание.</p>
+
+    <script>
+        // Интервал напоминания в миллисекундах (10 минут)
+        const interval = 10 * 60 * 1000;
+
+        function notify() {
+            const message = "⏰ Время проветрить комнату!";
+            alert(message);
+            console.log(message);
+            // Также можно использовать:
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(message);
+            }
+        }
+
+        // Запрашиваем разрешение на уведомления
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        // Запускаем таймер
+        setInterval(notify, interval);
+
+        // Первое напоминание через 5 секунд для теста
+        setTimeout(notify, 5000);
+    </script>
+</body>
+
+</html>

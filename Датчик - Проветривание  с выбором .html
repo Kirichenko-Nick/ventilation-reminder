@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Умное напоминание</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+        }
+
+        select,
+        button {
+            font-size: 16px;
+            margin: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>⏰ Напоминание о проветривании</h1>
+
+    <label for="interval-select">Выберите интервал:</label>
+    <select id="interval-select">
+        <option value="5">Каждые 5 минут</option>
+        <option value="10" selected>Каждые 10 минут</option>
+        <option value="30">Каждые 30 минут</option>
+        <option value="60">Каждые 60 минут</option>
+    </select>
+
+    <br>
+    <button id="start-button">▶️ Старт</button>
+    <button id="stop-button" disabled>⏹ Стоп</button>
+
+    <p id="status">Ожидание запуска...</p>
+
+    <script>
+        let timerId = null;
+
+        const select = document.getElementById("interval-select");
+        const startBtn = document.getElementById("start-button");
+        const stopBtn = document.getElementById("stop-button");
+        const status = document.getElementById("status");
+
+        function notify() {
+            const message = "Пора проветрить комнату!";
+            alert(message);
+            console.log(message);
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(message);
+            }
+        }
+
+        function startReminder() {
+            const minutes = parseInt(select.value);
+            const interval = minutes * 60 * 1000;
+
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+
+            if (timerId) clearInterval(timerId);
+            notify(); // Первое уведомление сразу
+            timerId = setInterval(notify, interval);
+
+            status.textContent = `✅ Напоминание включено. Каждые ${minutes} минут.`;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+        }
+
+        function stopReminder() {
+            clearInterval(timerId);
+            timerId = null;
+            status.textContent = "⏹ Напоминание остановлено.";
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+
+        startBtn.addEventListener("click", startReminder);
+        stopBtn.addEventListener("click", stopReminder);
+    </script>
+</body>
+
+</html>
